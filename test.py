@@ -354,12 +354,12 @@ def main():
             i -= 1
         i += 1
         
-    print(len(structure)) # 4
-    print(len(motions)) # 3
+    # print(len(structure)) # 4
+    # print(len(motions)) # 3
     # np.save('structure.npy', structure)
     # np.save('colors.npy', colors)
     
-    fig(structure,colors) # 就只是一个简单的3维坐标，有几个点
+    # fig(structure,colors) # 就只是一个简单的3维坐标，有几个点
     # fig_v1(structure) # 灰图，有几个白点
     # fig_v2(structure, colors) # 也是一个灰图，几个白点。
    
