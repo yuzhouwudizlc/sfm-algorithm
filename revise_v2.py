@@ -18,18 +18,18 @@ from scipy.optimize import least_squares
 #两张图之间的特征提取及匹配
 ##########################
 def extract_features(image_names):
-    
-    sift = cv2.xfeatures2d.SIFT_create(0, 3, 0.04, 10)
+    # sift = cv2.SIFT(0, 3, 0.04, 10)
+    sift= cv2.SIFT_create(0, 3, 0.04, 10)
     key_points_for_all = []
     descriptor_for_all = []
     colors_for_all = []
     for image_name in image_names:
         image = cv2.imread(image_name)
-        
         if image is None:
             continue
+        # gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # key_points, descriptor = sift.detectAndCompute(image, None)
         key_points, descriptor = sift.detectAndCompute(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), None)
-        
         if len(key_points) <= 10:
             continue
         
@@ -68,10 +68,18 @@ def find_transform(K, p1, p2):
     
     focal_length = 0.5 * (K[0, 0] + K[1, 1])
     principle_point = (K[0, 2], K[1, 2])
-    E,mask = cv2.findEssentialMat(p1, p2, focal_length, principle_point, cv2.RANSAC, 0.999, 1.0)
-    cameraMatrix = np.array([[focal_length, 0, principle_point[0]], [0, focal_length, principle_point[1]], [0, 0, 1]])
+
+    # 估计本质矩阵和掩码
+    
+    # E, mask = cv2.findEssentialMat(p1, p2, focal_length, principle_point, cv2.RANSAC, 0.999, 1.0)
+    # cameraMatrix = np.array([[focal_length, 0, principle_point[0]], [0, focal_length, principle_point[1]], [0, 0, 1]])
+    E, mask = cv2.findEssentialMat(p1, p2, cameraMatrix, cv2.RANSAC, 0.999, 1.0)
+    cameraMatrix = np.array([[focal_length, 0, principle_point[0]], [0, focal_length, principle_point[1]], [0, 0, 1]], dtype=np.float32)
+ 
     pass_count, R, T, mask = cv2.recoverPose(E, p1, p2, cameraMatrix, mask)
     
+    
+  
     return R, T, mask
 
 def get_matched_points(p1, p2, matches):
@@ -274,7 +282,7 @@ def main():
     img_names = sorted(img_names)
     
     for i in range(len(img_names)):
-        img_names[i] = imgdir + img_names[i]
+        img_names[i] = os.path.join(imgdir, img_names[i])
     # img_names = img_names[0:10]
 
     # K是摄像头的参数矩阵
@@ -318,8 +326,8 @@ def main():
     # np.save('structure.npy', structure)
     # np.save('colors.npy', colors)
     
-    # fig(structure,colors)
-    fig_v1(structure)
+    fig(structure,colors)
+    # fig_v1(structure)
     # fig_v2(structure, colors)
    
 if __name__ == '__main__':
